@@ -1,159 +1,277 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 public class AVLTree {
-    private Node raiz;
-    private int rotacoes = 0;
+        Node root;
+        private int rotationCountInsert = 0;
+        private int rotationCountDelete = 0;
 
-    public void inserir(int valor) {
-        raiz = inserir(raiz, valor);
-    }
-
-    private Node inserir(Node node, int valor) {
-        if (node == null) {
-            return new Node(valor);
+        // Função para obter a altura de um nó
+        private int height(Node N) {
+            if (N == null)
+                return 0;
+            return N.height;
         }
 
-        if (valor < node.valor) {
-            node.esquerda = inserir(node.esquerda, valor);
-        } else if (valor > node.valor) {
-            node.direita = inserir(node.direita, valor);
-        } else {
-            return node; // não permite valores duplicados
+        // Função para obter o máximo de dois inteiros
+        private int max(int a, int b) {
+            return Math.max(a, b);
         }
 
-        atualizarAltura(node);
-        return balancear(node);
-    }
-
-    public void remover(int valor) {
-        raiz = remover(raiz, valor);
-    }
-
-    private Node remover(Node node, int valor) {
-        if (node == null) {
-            return null;
-        }
-
-        if (valor < node.valor) {
-            node.esquerda = remover(node.esquerda, valor);
-        } else if (valor > node.valor) {
-            node.direita = remover(node.direita, valor);
-        } else {
-            // Nó encontrado
-            if (node.esquerda == null || node.direita == null) {
-                node = (node.esquerda != null) ? node.esquerda : node.direita;
-            } else {
-                Node menor = menorValor(node.direita);
-                node.valor = menor.valor;
-                node.direita = remover(node.direita, menor.valor);
+        // Atualiza a altura de um nó
+        private void updateHeight(Node N) {
+            if (N != null) {
+                N.height = max(height(N.left), height(N.right)) + 1;
             }
         }
 
-        if (node == null) {
-            return null;
+        // Rotação à direita
+        private Node rotateRight(Node y) {
+            Node x = y.left;
+            Node T2 = x.right;
+
+            // Realiza a rotação
+            x.right = y;
+            y.left = T2;
+
+            // Atualiza alturas
+            updateHeight(y);
+            updateHeight(x);
+
+            return x; // Nova raiz
         }
 
-        atualizarAltura(node);
-        return balancear(node);
-    }
+        // Rotação à esquerda
+        private Node rotateLeft(Node x) {
+            Node y = x.right;
+            Node T2 = y.left;
 
-    private Node menorValor(Node node) {
-        while (node.esquerda != null) {
-            node = node.esquerda;
+            // Realiza a rotação
+            y.left = x;
+            x.right = T2;
+
+            // Atualiza alturas
+            updateHeight(x);
+            updateHeight(y);
+
+            return y; // Nova raiz
         }
-        return node;
-    }
 
-    public boolean buscar(int valor) {
-        return buscar(raiz, valor);
-    }
-
-    private boolean buscar(Node node, int valor) {
-        if (node == null) {
-            return false;
+        // Obtém o fator de balanceamento de um nó
+        private int getBalanceFactor(Node N) {
+            if (N == null)
+                return 0;
+            return height(N.left) - height(N.right);
         }
-        if (valor == node.valor) {
-            return true;
-        } else if (valor < node.valor) {
-            return buscar(node.esquerda, valor);
-        } else {
-            return buscar(node.direita, valor);
+
+        // Inserção
+        public void insert(int value) {
+            this.root = insertRec(this.root, value, true);
         }
-    }
 
-    private void atualizarAltura(Node node) {
-        node.altura = 1 + Math.max(altura(node.esquerda), altura(node.direita));
-    }
+        private Node insertRec(Node node, int value, boolean isInsertOperation) {
+            // 1. Inserção normal da BST
+            if (node == null)
+                return (new Node(value));
 
-    private int altura(Node node) {
-        return (node == null) ? 0 : node.altura;
-    }
+            if (value < node.value)
+                node.left = insertRec(node.left, value, isInsertOperation);
+            else if (value > node.value)
+                node.right = insertRec(node.right, value, isInsertOperation);
+            else
+                return node; // Valores duplicados não são permitidos
 
-    private int fatorBalanceamento(Node node) {
-        return (node == null) ? 0 : altura(node.esquerda) - altura(node.direita);
-    }
+            // 2. Atualiza a altura do nó ancestral
+            updateHeight(node);
 
-    private Node balancear(Node node) {
-        int balance = fatorBalanceamento(node);
+            // 3. Obtém o fator de balanceamento deste nó ancestral
+            int balance = getBalanceFactor(node);
 
-        if (balance > 1) {
-            if (fatorBalanceamento(node.esquerda) < 0) {
-                node.esquerda = rotacaoEsquerda(node.esquerda);
+            // 4. Se o nó ficar desbalanceado, existem 4 casos
+
+            // Caso Esquerda-Esquerda
+            if (balance > 1 && value < node.left.value) {
+                if(isInsertOperation) rotationCountInsert++;
+                else rotationCountDelete++;
+                return rotateRight(node);
             }
-            return rotacaoDireita(node);
-        }
 
-        if (balance < -1) {
-            if (fatorBalanceamento(node.direita) > 0) {
-                node.direita = rotacaoDireita(node.direita);
+            // Caso Direita-Direita
+            if (balance < -1 && value > node.right.value) {
+                if(isInsertOperation) rotationCountInsert++;
+                else rotationCountDelete++;
+                return rotateLeft(node);
             }
-            return rotacaoEsquerda(node);
+
+            // Caso Esquerda-Direita
+            if (balance > 1 && value > node.left.value) {
+                if(isInsertOperation) rotationCountInsert += 2; // Duas rotações
+                else rotationCountDelete += 2;
+                node.left = rotateLeft(node.left);
+                return rotateRight(node);
+            }
+
+            // Caso Direita-Esquerda
+            if (balance < -1 && value < node.right.value) {
+                if(isInsertOperation) rotationCountInsert += 2; // Duas rotações
+                else rotationCountDelete += 2;
+                node.right = rotateRight(node.right);
+                return rotateLeft(node);
+            }
+
+            // Retorna o ponteiro do nó (inalterado)
+            return node;
         }
 
-        return node;
-    }
+        // Remoção
+        public void delete(int value) {
+            this.root = deleteRec(this.root, value);
+        }
 
-    private Node rotacaoDireita(Node y) {
-        Node x = y.esquerda;
-        Node T2 = x.direita;
+        private Node minValueNode(Node node) {
+            Node current = node;
+            while (current.left != null)
+                current = current.left;
+            return current;
+        }
 
-        x.direita = y;
-        y.esquerda = T2;
+        private Node deleteRec(Node root, int value) {
+            // 1. Remoção padrão da BST
+            if (root == null)
+                return root;
 
-        atualizarAltura(y);
-        atualizarAltura(x);
+            if (value < root.value)
+                root.left = deleteRec(root.left, value);
+            else if (value > root.value)
+                root.right = deleteRec(root.right, value);
+            else {
+                // Nó com apenas um filho ou nenhum filho
+                if ((root.left == null) || (root.right == null)) {
+                    Node temp = null;
+                    if (temp == root.left)
+                        temp = root.right;
+                    else
+                        temp = root.left;
 
-        rotacoes++;
-        return x;
-    }
+                    // Nenhum filho
+                    if (temp == null) {
+                        temp = root;
+                        root = null;
+                    } else // Um filho
+                        root = temp; // Copia o conteúdo do filho não vazio
+                } else {
+                    // Nó com dois filhos: Pega o sucessor em-ordem (menor na subárvore direita)
+                    Node temp = minValueNode(root.right);
+                    root.value = temp.value; // Copia o valor do sucessor em-ordem para este nó
+                    root.right = deleteRec(root.right, temp.value); // Deleta o sucessor em-ordem
+                }
+            }
 
-    private Node rotacaoEsquerda(Node x) {
-        Node y = x.direita;
-        Node T2 = y.esquerda;
+            // Se a árvore tinha apenas um nó, então retorna
+            if (root == null)
+                return root;
 
-        y.esquerda = x;
-        x.direita = T2;
+            // 2. Atualiza a altura do nó atual
+            updateHeight(root);
 
-        atualizarAltura(x);
-        atualizarAltura(y);
+            // 3. Obtém o fator de balanceamento deste nó
+            int balance = getBalanceFactor(root);
 
-        rotacoes++;
-        return y;
-    }
+            // 4. Se o nó ficar desbalanceado, existem 4 casos (similares à inserção, mas o gatilho é diferente)
 
-    public void exibirArvore() {
-        exibirArvore(raiz, "", true);
-    }
+            // Caso Esquerda-Esquerda (Left Left Case)
+            if (balance > 1 && getBalanceFactor(root.left) >= 0) {
+                rotationCountDelete++;
+                return rotateRight(root);
+            }
 
-    private void exibirArvore(Node node, String prefixo, boolean isTail) {
-        if (node != null) {
-            System.out.println(prefixo + (isTail ? "└── " : "├── ") + node.valor);
-            exibirArvore(node.direita, prefixo + (isTail ? "    " : "│   "), false);
-            exibirArvore(node.esquerda, prefixo + (isTail ? "    " : "│   "), true);
+            // Caso Esquerda-Direita (Left Right Case)
+            if (balance > 1 && getBalanceFactor(root.left) < 0) {
+                rotationCountDelete += 2;
+                root.left = rotateLeft(root.left);
+                return rotateRight(root);
+            }
+
+            // Caso Direita-Direita (Right Right Case)
+            if (balance < -1 && getBalanceFactor(root.right) <= 0) {
+                rotationCountDelete++;
+                return rotateLeft(root);
+            }
+
+            // Caso Direita-Esquerda (Right Left Case)
+            if (balance < -1 && getBalanceFactor(root.right) > 0) {
+                rotationCountDelete += 2;
+                root.right = rotateRight(root.right);
+                return rotateLeft(root);
+            }
+
+            return root;
+        }
+
+        // Busca (simples, não modifica a árvore)
+        public boolean search(int value) {
+            return searchRec(root, value);
+        }
+
+        private boolean searchRec(Node root, int value) {
+            if (root == null) {
+                return false;
+            }
+            if (root.value == value) {
+                return true;
+            }
+            return value < root.value ? searchRec(root.left, value) : searchRec(root.right, value);
+        }
+
+        public int getRotationCountInsert() {
+            return rotationCountInsert;
+        }
+
+        public int getRotationCountDelete() {
+            return rotationCountDelete;
+        }
+
+        public void resetRotations() {
+            rotationCountInsert = 0;
+            rotationCountDelete = 0;
+        }
+
+        // Para serialização para o front-end (Vis.js espera nós e arestas)
+        public Map<String, Object> getTreeData() {
+            Map<String, Object> data = new HashMap<>();
+            List<Map<String, Object>> nodes = new ArrayList<>();
+            List<Map<String, Object>> edges = new ArrayList<>();
+
+            populateTreeData(root, nodes, edges, -1); // -1 para indicar que a raiz não tem "from"
+
+            data.put("nodes", nodes);
+            data.put("edges", edges);
+            data.put("rotationCountInsert", rotationCountInsert);
+            data.put("rotationCountDelete", rotationCountDelete);
+            return data;
+        }
+
+        private void populateTreeData(Node node, List<Map<String, Object>> nodesList, List<Map<String, Object>> edgesList, int parentId) {
+            if (node == null) {
+                return;
+            }
+
+            Map<String, Object> nodeMap = new HashMap<>();
+            nodeMap.put("id", node.id);
+            nodeMap.put("label", String.valueOf(node.value) + "\n(h:" + node.height + ", bf:" + getBalanceFactor(node) + ")");
+            nodesList.add(nodeMap);
+
+            if (parentId != -1) {
+                Map<String, Object> edgeMap = new HashMap<>();
+                edgeMap.put("from", parentId);
+                edgeMap.put("to", node.id);
+                edgesList.add(edgeMap);
+            }
+
+            populateTreeData(node.left, nodesList, edgesList, node.id);
+            populateTreeData(node.right, nodesList, edgesList, node.id);
         }
     }
-
-    public int getNumeroDeRotacoes() {
-        return rotacoes;
-    }
-}

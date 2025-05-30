@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Árvore AVL</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style type="text/css">
+        #avlNetwork {
+            width: 100%;
+            height: 500px;
+            border: 1px solid lightgray;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+<h1>Visualizador de Árvore AVL</h1>
+
+<div class="controls">
+    <input type="number" id="nodeValue" placeholder="Valor do nó">
+    <button onclick="insertNode()">Inserir</button>
+    <button onclick="deleteNode()">Remover</button>
+    <button onclick="searchNode()">Buscar</button>
+    <button onclick="resetTree()">Resetar Árvore</button>
+</div>
+
+<div id="avlNetwork"></div>
+
+<div class="info">
+    <p>Rotações na Inserção: <span id="rotationsInsert">0</span></p>
+    <p>Rotações na Remoção: <span id="rotationsDelete">0</span></p>
+    <p id="messageArea"></p>
+</div>
+
+<div class="explanation">
+    <h2>Funcionamento das Árvores AVL</h2>
+    <p>Uma Árvore AVL é uma Árvore Binária de Busca auto-balanceável. A diferença de altura entre as subárvores esquerda e direita de qualquer nó (fator de balanceamento) não pode ser maior que 1. Isso garante que as operações de busca, inserção e remoção tenham complexidade $O(\log n)$ no pior caso.</p>
+    <h3>Rebalanceamento:</h3>
+    <p>Quando uma inserção ou remoção causa um desbalanceamento (fator de balanceamento se torna -2 ou 2), a árvore realiza rotações para restaurar a propriedade AVL.</p>
+    <ul>
+        <li><strong>Rotação Simples à Esquerda (LL ou Direita-Direita):</strong> Aplicada quando um nó fica desbalanceado devido à inserção na subárvore direita do filho direito.</li>
+        <li><strong>Rotação Simples à Direita (RR ou Esquerda-Esquerda):</strong> Aplicada quando um nó fica desbalanceado devido à inserção na subárvore esquerda do filho esquerdo.</li>
+        <li><strong>Rotação Dupla Esquerda-Direita (LR):</strong> Aplicada quando um nó fica desbalanceado devido à inserção na subárvore direita do filho esquerdo. Consiste em uma rotação à esquerda no filho esquerdo, seguida por uma rotação à direita no nó original.</li>
+        <li><strong>Rotação Dupla Direita-Esquerda (RL):</strong> Aplicada quando um nó fica desbalanceado devido à inserção na subárvore esquerda do filho direito. Consiste em uma rotação à direita no filho direito, seguida por uma rotação à esquerda no nó original.</li>
+    </ul>
+    <p><strong>Exemplo de Rotação Esquerda-Esquerda (Simples à Direita):</strong></p>
+    <p>Se o nó Z está desbalanceado e Y é seu filho esquerdo e X é o filho esquerdo de Y:</p>
+    <pre>
+        Z (FB=2)
+       /
+      Y (FB=1)
+     /
+    X
+        </pre>
+    <p>Após uma rotação à direita em Z, Y se torna a nova raiz da subárvore:</p>
+    <pre>
+        Y
+       / \
+      X   Z
+        </pre>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
