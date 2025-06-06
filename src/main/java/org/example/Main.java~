@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import static spark.Spark.*;
 
 public class Main {
@@ -13,12 +12,10 @@ public class Main {
         AVLTree tree = new AVLTree();
         Gson gson = new Gson();
 
-        // ----- ADICIONE A LINHA ABAIXO AQUI -----
-        // Serve arquivos estáticos da pasta /public no classpath
         staticFiles.location("/public");
-        // -----------------------------------------
 
-        // Configurar o CORS para permitir requisições do front-end local
+
+
         options("/*", (request, response) -> {
             String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
             if (accessControlRequestHeaders != null) {
@@ -33,13 +30,11 @@ public class Main {
 
         before((request, response) -> response.header("Access-Control-Allow-Origin", "*")); // Permitir todas as origens
 
-        // Endpoint para obter a árvore atual
         get("/tree", (req, res) -> {
             res.type("application/json");
             return gson.toJson(tree.getTreeData());
         });
 
-        // Endpoint para inserir um valor
         post("/insert", (req, res) -> {
             res.type("application/json");
             try {
@@ -61,7 +56,6 @@ public class Main {
             }
         });
 
-        // Endpoint para remover um valor
         post("/delete", (req, res) -> {
             res.type("application/json");
             try {
@@ -83,7 +77,6 @@ public class Main {
             }
         });
 
-        // Endpoint para buscar um valor (apenas informa se existe)
         get("/search/:value", (req, res) -> {
             res.type("application/json");
             try {
@@ -99,10 +92,9 @@ public class Main {
             }
         });
 
-        // Endpoint para resetar a árvore e as contagens
         post("/reset", (req, res) -> {
-            tree.root = null; 
-            Node.idCounter = 0; 
+            tree.root = null;
+            Node.idCounter = 0;
             tree.resetRotations();
             res.type("application/json");
             return gson.toJson(tree.getTreeData());

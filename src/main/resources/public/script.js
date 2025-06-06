@@ -14,37 +14,52 @@ document.addEventListener('DOMContentLoaded', () => {
         layout: {
             hierarchical: {
                 direction: "UD", // Up-Down
-                sortMethod: "directed", // hubsize, directed
-                shakeTowards: "roots",
-                levelSeparation: 70,
-                nodeSpacing: 150,
+                sortMethod: "directed",
+                nodeSpacing: 120,
+                levelSeparation: 120,
+                parentCentralization: true,
+                blockShifting: true,
+                edgeMinimization: true
             }
         },
         edges: {
             arrows: 'to',
             smooth: {
-                type: 'cubicBezier',
-                forceDirection: 'vertical',
-                roundness: 0.4
-            }
+                type: 'straightCross',
+                roundness: 0
+            },
+            color: "#2B7CE9",
+            width: 2
         },
         nodes: {
-            shape: 'ellipse', // circle, box, ellipse, database
+            fixed: true,
+            shape: 'circle',
+            size: 30,
+            color: {
+                background: '#97C2FC',
+                border: '#2B7CE9',
+                highlight: {
+                    background: '#D2E5FF',
+                    border: '#2B7CE9'
+                }
+            },
             margin: 10,
             font: {
-                size: 14,
-                color: '#333'
+                size: 16,
+                color: '#333',
+                face: 'arial',
+                align: 'center',
+                multi: true
             },
-            borderWidth: 2,
-            scaling: {
-                label: {
-                    enabled: true,
-                    min: 14,
-                    max: 30
-                }
-            }
+            borderWidth: 2
         },
-        physics: false // Desabilitar física para layout hierárquico estático
+        physics: false,
+        interaction: {
+            dragNodes: false,
+            dragView: true,
+            zoomView: true,
+            hover: true
+        }
     };
     network = new vis.Network(container, data, options);
     fetchTree(); // Carrega a árvore inicial (vazia)

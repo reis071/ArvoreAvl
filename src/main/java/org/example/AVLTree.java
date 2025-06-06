@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 public class AVLTree {
+    
         Node root;
         private int rotationCountInsert = 0;
         private int rotationCountDelete = 0;
@@ -33,15 +35,14 @@ public class AVLTree {
             Node x = y.left;
             Node T2 = x.right;
 
-            // Realiza a rotação
+            
             x.right = y;
             y.left = T2;
 
-            // Atualiza alturas
             updateHeight(y);
             updateHeight(x);
 
-            return x; // Nova raiz
+            return x; 
         }
 
         // Rotação à esquerda
@@ -49,15 +50,15 @@ public class AVLTree {
             Node y = x.right;
             Node T2 = y.left;
 
-            // Realiza a rotação
+            
             y.left = x;
             x.right = T2;
 
-            // Atualiza alturas
+            
             updateHeight(x);
             updateHeight(y);
 
-            return y; // Nova raiz
+            return y; 
         }
 
         // Obtém o fator de balanceamento de um nó
@@ -72,59 +73,56 @@ public class AVLTree {
             this.root = insertRec(this.root, value, true);
         }
 
-        private Node insertRec(Node node, int value, boolean isInsertOperation) {
-            // 1. Inserção normal da BST
-            if (node == null)
-                return (new Node(value));
+    private Node insertRec(Node node, int value, boolean isInsertOperation) {
+       
+        if (node == null)
+            return (new Node(value));
 
-            if (value < node.value)
-                node.left = insertRec(node.left, value, isInsertOperation);
-            else if (value > node.value)
-                node.right = insertRec(node.right, value, isInsertOperation);
-            else
-                return node; // Valores duplicados não são permitidos
-
-            // 2. Atualiza a altura do nó ancestral
-            updateHeight(node);
-
-            // 3. Obtém o fator de balanceamento deste nó ancestral
-            int balance = getBalanceFactor(node);
-
-            // 4. Se o nó ficar desbalanceado, existem 4 casos
-
-            // Caso Esquerda-Esquerda
-            if (balance > 1 && value < node.left.value) {
-                if(isInsertOperation) rotationCountInsert++;
-                else rotationCountDelete++;
-                return rotateRight(node);
-            }
-
-            // Caso Direita-Direita
-            if (balance < -1 && value > node.right.value) {
-                if(isInsertOperation) rotationCountInsert++;
-                else rotationCountDelete++;
-                return rotateLeft(node);
-            }
-
-            // Caso Esquerda-Direita
-            if (balance > 1 && value > node.left.value) {
-                if(isInsertOperation) rotationCountInsert += 2; // Duas rotações
-                else rotationCountDelete += 2;
-                node.left = rotateLeft(node.left);
-                return rotateRight(node);
-            }
-
-            // Caso Direita-Esquerda
-            if (balance < -1 && value < node.right.value) {
-                if(isInsertOperation) rotationCountInsert += 2; // Duas rotações
-                else rotationCountDelete += 2;
-                node.right = rotateRight(node.right);
-                return rotateLeft(node);
-            }
-
-            // Retorna o ponteiro do nó (inalterado)
+        if (value < node.value) { 
+            node.left = insertRec(node.left, value, isInsertOperation); 
+        } else if (value > node.value) { 
+            node.right = insertRec(node.right, value, isInsertOperation); 
+        } else {
+            
             return node;
         }
+        
+
+
+        // 2. Atualiza a altura do nó ancestral
+        updateHeight(node);
+
+        
+        int balance = getBalanceFactor(node);
+
+        
+        if (balance > 1 && value < node.left.value) { // Ajustado para a lógica correta
+            if(isInsertOperation) rotationCountInsert++;
+            return rotateRight(node);
+        }
+
+        // Caso Direita-Direita
+        if (balance < -1 && value > node.right.value) { // Ajustado para a lógica correta
+            if(isInsertOperation) rotationCountInsert++;
+            return rotateLeft(node);
+        }
+
+        // Caso Esquerda-Direita
+        if (balance > 1 && value > node.left.value) { // Ajustado para a lógica correta
+            if(isInsertOperation) rotationCountInsert += 2;
+            node.left = rotateLeft(node.left);
+            return rotateRight(node);
+        }
+
+        // Caso Direita-Esquerda
+        if (balance < -1 && value < node.right.value) { // Ajustado para a lógica correta
+            if(isInsertOperation) rotationCountInsert += 2;
+            node.right = rotateRight(node.right);
+            return rotateLeft(node);
+        }
+
+        return node;
+    }
 
         // Remoção
         public void delete(int value) {
