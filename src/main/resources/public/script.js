@@ -10,59 +10,36 @@ document.addEventListener('DOMContentLoaded', () => {
         nodes: nodes,
         edges: edges,
     };
+    // CÓDIGO CORRIGIDO
     const options = {
         layout: {
             hierarchical: {
-                direction: "UD", // Up-Down
+                direction: "UD",
                 sortMethod: "directed",
-                nodeSpacing: 120,
-                levelSeparation: 120,
-                parentCentralization: true,
-                blockShifting: true,
-                edgeMinimization: true
+                nodeSpacing: 200,
+                levelSeparation: 150,
             }
         },
-        edges: {
-            arrows: 'to',
-            smooth: {
-                type: 'straightCross',
-                roundness: 0
-            },
-            color: "#2B7CE9",
-            width: 2
-        },
+        physics: { enabled: true }, // <-- AJUSTE FEITO
         nodes: {
-            fixed: true,
             shape: 'circle',
-            size: 30,
-            color: {
-                background: '#97C2FC',
-                border: '#2B7CE9',
-                highlight: {
-                    background: '#D2E5FF',
-                    border: '#2B7CE9'
-                }
-            },
-            margin: 10,
-            font: {
-                size: 16,
-                color: '#333',
-                face: 'arial',
-                align: 'center',
-                multi: true
-            },
-            borderWidth: 2
+            size: 35,
+            font: { size: 16, face: 'arial', multi: 'html', align: 'center' },
+            borderWidth: 2,
+            shadow: true,
+            color: { background: '#97C2FC', border: '#2B7CE9' }
         },
-        physics: false,
-        interaction: {
-            dragNodes: false,
-            dragView: true,
-            zoomView: true,
-            hover: true
+        edges: {
+            arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+            smooth: { enabled: true, type: "cubicBezier", roundness: 0.5 },
+            color: "#2B7CE9",
+            width: 2,
+            shadow: true
         }
     };
+
     network = new vis.Network(container, data, options);
-    fetchTree(); // Carrega a árvore inicial (vazia)
+    fetchTree();
 });
 
 function showMessage(text, isError = false) {
@@ -84,20 +61,17 @@ async function fetchTree() {
 }
 
 async function sendData(endpoint, value) {
-    messageArea.textContent = ''; // Limpa mensagens anteriores
+    messageArea.textContent = '';
     try {
         const response = await fetch(`${apiUrl}/${endpoint}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ value: parseInt(value) }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ value: value }),
         });
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({error: "Erro desconhecido"}));
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
         const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || `HTTP error! status: ${response.status}`);
+        }
         if (data.message) {
             showMessage(data.message);
         }
@@ -111,66 +85,67 @@ async function sendData(endpoint, value) {
 function updateVisualization(data) {
     nodes.clear();
     edges.clear();
-    if (data && data.nodes) {
+
+    if (data.nodes) {
         nodes.add(data.nodes);
     }
-    if (data && data.edges) {
+
+    if (data.edges) {
         edges.add(data.edges);
     }
 
-    // Para o layout hierárquico funcionar melhor, é bom re-aplicar opções ou forçar um redraw
-    // network.setOptions(network.options); // Reaplicar opções pode ajudar
-    network.fit(); // Ajusta a visualização
+    network.fit();
 
     document.getElementById('rotationsInsert').textContent = data.rotationCountInsert || 0;
     document.getElementById('rotationsDelete').textContent = data.rotationCountDelete || 0;
 }
 
-function insertNode() {
-    const value = document.getElementById('nodeValue').value;
-    if (value === "") {
+function handleInput(actionFn) {
+    const valueInput = document.getElementById('nodeValue');
+    const valueStr = valueInput.value;
+
+    if (valueStr === "") {
         showMessage("Por favor, insira um valor.", true);
         return;
     }
-    sendData('insert', value);
-    document.getElementById('nodeValue').value = '';
+
+    const value = parseInt(valueStr, 10);
+
+    if (isNaN(value)) {
+        showMessage("Valor inválido. Insira um número inteiro.", true);
+        valueInput.value = '';
+        return;
+    }
+
+    actionFn(value);
+    valueInput.value = '';
+}
+
+function insertNode() {
+    handleInput(value => sendData('insert', value));
 }
 
 function deleteNode() {
-    const value = document.getElementById('nodeValue').value;
-    if (value === "") {
-        showMessage("Por favor, insira um valor para remover.", true);
-        return;
-    }
-    sendData('delete', value);
-    document.getElementById('nodeValue').value = '';
+    handleInput(value => sendData('delete', value));
 }
 
 async function searchNode() {
-    const value = document.getElementById('nodeValue').value;
-    if (value === "") {
-        showMessage("Por favor, insira um valor para buscar.", true);
-        return;
-    }
-    messageArea.textContent = '';
-    try {
-        const response = await fetch(`${apiUrl}/search/${value}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const result = await response.json();
-        if (result.found) {
-            showMessage(`Valor ${result.value} encontrado na árvore.`);
-            // Opcional: destacar o nó. Vis.js permite selecionar nós.
-            // nodes.update([{id: /*id do nó encontrado*/, color: {background: 'lime'}}]);
-            // Precisaria de uma forma de mapear valor para id do nó aqui.
-            // Por simplicidade, apenas informamos que foi encontrado.
-        } else {
-            showMessage(`Valor ${result.value} NÃO encontrado na árvore.`, true);
+    handleInput(async value => {
+        messageArea.textContent = '';
+        try {
+            const response = await fetch(`${apiUrl}/search/${value}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await response.json();
+            if (result.found) {
+                showMessage(`Valor ${result.value} encontrado na árvore.`);
+            } else {
+                showMessage(`Valor ${result.value} NÃO encontrado na árvore.`, true);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar nó:', error);
+            showMessage('Erro ao buscar nó.', true);
         }
-    } catch (error) {
-        console.error('Erro ao buscar nó:', error);
-        showMessage('Erro ao buscar nó.', true);
-    }
-    document.getElementById('nodeValue').value = '';
+    });
 }
 
 async function resetTree() {
