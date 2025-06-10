@@ -11,32 +11,34 @@ document.addEventListener('DOMContentLoaded', () => {
         edges: edges,
     };
     // CÓDIGO CORRIGIDO
-    const options = {
-        layout: {
-            hierarchical: {
-                direction: "UD",
-                sortMethod: "directed",
-                nodeSpacing: 200,
-                levelSeparation: 150,
-            }
-        },
-        physics: { enabled: true }, // <-- AJUSTE FEITO
-        nodes: {
-            shape: 'circle',
-            size: 35,
-            font: { size: 16, face: 'arial', multi: 'html', align: 'center' },
-            borderWidth: 2,
-            shadow: true,
-            color: { background: '#97C2FC', border: '#2B7CE9' }
-        },
-        edges: {
-            arrows: { to: { enabled: true, scaleFactor: 0.5 } },
-            smooth: { enabled: true, type: "cubicBezier", roundness: 0.5 },
-            color: "#2B7CE9",
-            width: 2,
-            shadow: true
+    // No seu script.js
+
+const options = {
+    layout: {
+        hierarchical: {
+            direction: "UD",
+            sortMethod: "directed",
+            nodeSpacing: 200,
+            levelSeparation: 150,
         }
-    };
+    },
+    physics: { enabled: false }, // <-- ALTERE PARA false
+    nodes: {
+        shape: 'circle',
+        size: 35,
+        font: { size: 16, face: 'arial', multi: 'html', align: 'center' },
+        borderWidth: 2,
+        shadow: true,
+        color: { background: '#97C2FC', border: '#2B7CE9' }
+    },
+    edges: {
+        arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+        smooth: { enabled: true, type: "cubicBezier", roundness: 0.5 },
+        color: "#2B7CE9",
+        width: 2,
+        shadow: true
+    }
+};
 
     network = new vis.Network(container, data, options);
     fetchTree();
