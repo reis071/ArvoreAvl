@@ -173,7 +173,7 @@ public class AVLTree {
         rotationCountDelete = 0;
     }
 
-    // NOVO MÉTODO: Define as coordenadas X e Y de cada nó para o layout físico.
+    //  Define as coordenadas X e Y de cada nó para o layout físico.
     private int assignCoordinates(Node node, int x, int y) {
         if (node == null) {
             return x;
@@ -185,7 +185,7 @@ public class AVLTree {
         return assignCoordinates(node.right, leftSubtreeWidth + 1, y + 1);
     }
 
-    // AJUSTADO: Coleta os dados da árvore, agora incluindo as coordenadas físicas.
+    //Coleta os dados da árvore, agora incluindo as coordenadas físicas.
     public Map<String, Object> getTreeData() {
         if (root != null) {
             assignCoordinates(root, 0, 0);
@@ -202,7 +202,7 @@ public class AVLTree {
         return data;
     }
 
-    // AJUSTADO: Adiciona as coordenadas X e Y ao mapa de cada nó.
+    // Adiciona as coordenadas X e Y ao mapa de cada nó.
     private void populateTreeData(Node node, List<Map<String, Object>> nodesList, List<Map<String, Object>> edgesList, int parentId) {
         if (node == null) return;
         Map<String, Object> nodeMap = new HashMap<>();
