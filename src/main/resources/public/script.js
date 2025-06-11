@@ -10,9 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nodes: nodes,
         edges: edges,
     };
-    // CÓDIGO CORRIGIDO
-    // No seu script.js
-
+    
 const options = {
     layout: {
         hierarchical: {
@@ -22,7 +20,7 @@ const options = {
             levelSeparation: 150,
         }
     },
-    physics: { enabled: false }, // <-- ALTERE PARA false
+    physics: { enabled: false }, 
     nodes: {
         shape: 'circle',
         size: 35,
