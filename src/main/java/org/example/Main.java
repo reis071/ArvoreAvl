@@ -85,7 +85,7 @@ public class Main {
         });
 
         post("/reset", (req, res) -> {
-            tree.reset(); // CORREÇÃO: Usando o método encapsulado da árvore
+            tree.reset(); // Usando o método encapsulado da árvore
             res.type("application/json");
             return gson.toJson(tree.getTreeData());
         });

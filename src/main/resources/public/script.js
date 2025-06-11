@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         edges: edges,
     };
     
-    // --- AJUSTE REALIZADO AQUI ---
+
     const options = {
         layout: {
             // Desliga o layout automático para usar as coordenadas do backend.
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             shadow: true
         }
     };
-    // --- FIM DO AJUSTE ---
+    
 
     network = new vis.Network(container, data, options);
     fetchTree();

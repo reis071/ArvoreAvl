@@ -1,4 +1,4 @@
-// Em Node.java
+
 package org.example;
 
 public class Node {
@@ -9,7 +9,7 @@ public class Node {
     int id;
     static int idCounter = 0;
     
-    // CAMPOS ADICIONADOS
+
     int x, y;
 
     public Node(int value) {
