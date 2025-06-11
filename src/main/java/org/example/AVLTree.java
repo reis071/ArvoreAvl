@@ -173,8 +173,24 @@ public class AVLTree {
         rotationCountDelete = 0;
     }
 
-    // Coleta os dados da árvore para visualização.
+    // NOVO MÉTODO: Define as coordenadas X e Y de cada nó para o layout físico.
+    private int assignCoordinates(Node node, int x, int y) {
+        if (node == null) {
+            return x;
+        }
+        
+        node.y = y;
+        int leftSubtreeWidth = assignCoordinates(node.left, x, y + 1);
+        node.x = leftSubtreeWidth;
+        return assignCoordinates(node.right, leftSubtreeWidth + 1, y + 1);
+    }
+
+    // AJUSTADO: Coleta os dados da árvore, agora incluindo as coordenadas físicas.
     public Map<String, Object> getTreeData() {
+        if (root != null) {
+            assignCoordinates(root, 0, 0);
+        }
+
         Map<String, Object> data = new HashMap<>();
         List<Map<String, Object>> nodes = new ArrayList<>();
         List<Map<String, Object>> edges = new ArrayList<>();
@@ -186,12 +202,16 @@ public class AVLTree {
         return data;
     }
 
-    // Percorre a árvore recursivamente para extrair dados dos nós e arestas.
+    // AJUSTADO: Adiciona as coordenadas X e Y ao mapa de cada nó.
     private void populateTreeData(Node node, List<Map<String, Object>> nodesList, List<Map<String, Object>> edgesList, int parentId) {
         if (node == null) return;
         Map<String, Object> nodeMap = new HashMap<>();
         nodeMap.put("id", node.id);
         nodeMap.put("label", String.valueOf(node.value) + "\n(h:" + node.height + ", bf:" + getBalanceFactor(node) + ")");
+        
+        nodeMap.put("x", node.x * 150);
+        nodeMap.put("y", node.y * 120);
+
         nodesList.add(nodeMap);
         if (parentId != -1) {
             Map<String, Object> edgeMap = new HashMap<>();

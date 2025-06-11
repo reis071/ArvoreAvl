@@ -11,32 +11,31 @@ document.addEventListener('DOMContentLoaded', () => {
         edges: edges,
     };
     
-const options = {
-    layout: {
-        hierarchical: {
-            direction: "UD",
-            sortMethod: "directed",
-            nodeSpacing: 200,
-            levelSeparation: 150,
+    // --- AJUSTE REALIZADO AQUI ---
+    const options = {
+        layout: {
+            // Desliga o layout automático para usar as coordenadas do backend.
+            hierarchical: false
+        },
+        physics: { enabled: false }, 
+        nodes: {
+            shape: 'circle',
+            size: 35,
+            font: { size: 16, face: 'arial', multi: 'html', align: 'center' },
+            borderWidth: 2,
+            shadow: true,
+            color: { background: '#97C2FC', border: '#2B7CE9' }
+        },
+        edges: {
+            arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+            // Usa linhas retas, que ficam melhores em um layout com posições fixas.
+            smooth: false, 
+            color: "#2B7CE9",
+            width: 2,
+            shadow: true
         }
-    },
-    physics: { enabled: false }, 
-    nodes: {
-        shape: 'circle',
-        size: 35,
-        font: { size: 16, face: 'arial', multi: 'html', align: 'center' },
-        borderWidth: 2,
-        shadow: true,
-        color: { background: '#97C2FC', border: '#2B7CE9' }
-    },
-    edges: {
-        arrows: { to: { enabled: true, scaleFactor: 0.5 } },
-        smooth: { enabled: true, type: "cubicBezier", roundness: 0.5 },
-        color: "#2B7CE9",
-        width: 2,
-        shadow: true
-    }
-};
+    };
+    // --- FIM DO AJUSTE ---
 
     network = new vis.Network(container, data, options);
     fetchTree();
